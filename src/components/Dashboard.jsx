@@ -26,14 +26,13 @@ export default class Dashboard extends Component {
                 'size': { 'width': 235, 'height': 100 }
             },
             // Callback function called when a snapshot is recalled
-            (data) => { settings = { ...data } });
+            (data) => { settings = {...data} });
 
         let settings = {
             stepsize: 0.025,
-            maxheight: 5,
-            trailsize: 100,
+            line_width: 5,
+            trailsize: 180,
             decay: 0.1,
-            alpha: 0.4,
             freqA: 12,
             freqB: 11
         };
@@ -41,11 +40,10 @@ export default class Dashboard extends Component {
         var gui = new dat.GUI();
         gui.add(settings, 'freqA', 1, 50);
         gui.add(settings, 'freqB', 1, 50);
-        gui.add(settings, 'trailsize', 1, 360);
+        // gui.add(settings, 'trailsize', 1, 360);
         gui.add(settings, 'decay', 0.01, 0.99);
-        gui.add(settings, 'alpha', 0.01, 0.99);
         gui.add(settings, 'stepsize', 0.010, 1);
-        gui.add(settings, 'maxheight', 0.1, 32);
+        gui.add(settings, 'line_width', 0.1, 32);
         gui.open();
 
         var deg2rad = function (angle) {
@@ -60,7 +58,7 @@ export default class Dashboard extends Component {
         }
         var dot = function (ctx, x, y, offset) {
             ctx.save();
-            ctx.fillRect(20 + x, 20 + y, 0.5 + (offset / 32) * settings.maxheight, 0.5 + (offset / 32) * settings.maxheight);
+            ctx.fillRect(20 + x, 20 + y, 0.5 + (offset / 32) * settings.line_width, 0.5 + (offset / 32) * settings.line_width);
             ctx.restore();
         }
 
