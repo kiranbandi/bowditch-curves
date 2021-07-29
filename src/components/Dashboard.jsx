@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
+import { initializeSnapshot, updateSnapshot } from '@kiranbandi/snapshot';
 
 export default class Dashboard extends Component {
 
@@ -9,24 +10,34 @@ export default class Dashboard extends Component {
 
 
     componentDidMount() {
-        
+
         window.requestAnimFrame = (function () {
             return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
-                window.setTimeout(callback, 1000 / 60);
+                window.setTimeout(callback, 10000 / 60);
             };
         })();
 
-
+        // isAutomaticMode ON or OFF, automatic Timer Interval
+        initializeSnapshot(false, 1000,
+            // Thumbnail Options
+            {
+                'class': '.snapshot-thumbnail',
+                'type': 'canvas',
+                'size': { 'width': 235, 'height': 100 }
+            },
+            // Callback function called when a snapshot is recalled
+            (data) => { settings = { ...data } });
 
         let settings = {
             stepsize: 0.025,
-            maxheight: 1,
-            trailsize: 10,
+            maxheight: 5,
+            trailsize: 100,
             decay: 0.1,
             alpha: 0.4,
             freqA: 12,
             freqB: 11
         };
+
         var gui = new dat.GUI();
         gui.add(settings, 'freqA', 1, 50);
         gui.add(settings, 'freqB', 1, 50);
@@ -40,23 +51,14 @@ export default class Dashboard extends Component {
         var deg2rad = function (angle) {
             return angle * .017453292519943295; // (angle / 180) * Math.PI;
         }
-        var colorfreq = function (i) {
-            var frequency = .3;
-            i = i % 32;
-            var red = Math.ceil(Math.sin(frequency * i + 0) * 127 + 128);
-            var green = Math.ceil(Math.sin(frequency * i + 2) * 127 + 128);
-            var blue = Math.ceil(Math.sin(frequency * i + 4) * 127 + 128);
-            return "rgba(" + red + "," + green + "," + blue + "," + settings.alpha + ")";
-        }
 
         var x = function (t, ps) {
-            return 120 * Math.sin(settings.freqA * t) + 200
+            return 250 * Math.sin(settings.freqA * t) + 400
         }
         var y = function (t, ps) {
-            return 120 * Math.cos(settings.freqB * t) + 200
+            return 250 * Math.cos(settings.freqB * t) + 400
         }
         var dot = function (ctx, x, y, offset) {
-
             ctx.save();
             ctx.fillRect(20 + x, 20 + y, 0.5 + (offset / 32) * settings.maxheight, 0.5 + (offset / 32) * settings.maxheight);
             ctx.restore();
@@ -65,12 +67,15 @@ export default class Dashboard extends Component {
         var ctx = document.getElementById("canvas").getContext('2d');
         var offset = 0;
         (function animloop() {
+
+            updateSnapshot(settings);
+
             offset = (offset + 1) % 360;
             requestAnimFrame(animloop);
-            ctx.fillStyle = "rgba(0,0,0," + settings.decay + ")";
-            ctx.fillRect(0, 0, 500, 500);
+            ctx.fillStyle = "rgba(255,255,255," + settings.decay + ")";
+            ctx.fillRect(0, 0, 750, 750);
             var v = Math.ceil(Math.abs(Math.sin(deg2rad(offset)) * 32));
-            ctx.fillStyle = colorfreq(v);
+            ctx.fillStyle = '#2fa1d6';
             for (let i = offset; i < settings.trailsize + offset; i += settings.stepsize) {
                 dot(ctx, x(deg2rad(i), v), y(deg2rad(i), v), v);
             }
@@ -83,7 +88,7 @@ export default class Dashboard extends Component {
         // set the dimensions of the graph
         return (
             <div className='dashboard-root container-fluid'>
-                <canvas height="500" width="500" id="canvas"></canvas>
+                <canvas height="800" width="800" id="canvas" className='snapshot-thumbnail'></canvas>
             </div>
         );
     }

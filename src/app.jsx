@@ -17,6 +17,6 @@ class App extends Component {
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('bowditch-mount'));
+ReactDOM.render(<App />, document.getElementById('dashboard-mount'));
 
 
